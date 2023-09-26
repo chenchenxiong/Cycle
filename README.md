@@ -11,7 +11,7 @@ To explore the functions and roles of lncRNA regulation specific to different ce
 ## Schematic illustration
 
 A flowchart of **Cycle** is shown in the folowing.
-!(https://github.com/chenchenxiong/Cycle/blob/main/LCSlncR_flowchart.png)
+![](https://github.com/chenchenxiong/Cycle/blob/main/LCSlncR_flowchart.png)
 
 
 # Installation
