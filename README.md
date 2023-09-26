@@ -1,4 +1,4 @@
-# LCSlncR
+# Cycle
 
 **Contructing cell type-specific lncRNA-mRNA regulatory networks in ASD with Cycle**
 
