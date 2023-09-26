@@ -1,0 +1,111 @@
+---
+title: "Contructing cell type-specific lncRNA-mRNA regulatory networks in ASD"
+author: "Chenchen Xiong"
+date: '`r Sys.Date()`'
+output:
+    BiocStyle::html_document:
+      toc: yes
+    BiocStyle::pdf_document:
+      toc: yes
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r style, echo=FALSE, results="asis", message=FALSE}
+BiocStyle::markdown()
+knitr::opts_chunk$set(tidy = FALSE,
+    warning = FALSE,
+    message = FALSE)
+```
+
+```{r echo=FALSE, results='hide', message=FALSE}
+library(Cycle)
+```
+
+
+# Introduction
+
+The rapid development of single-nucleus RNA-sequencing (snRNA-seq) technology has revolutionized the depth and resolution, which could better capture and analyze cell-specific gene expression, and deeper understand lncRNA regulation mechanism of ASD.
+
+To explore the functions and roles of lncRNA regulation specific to different cell types in the pathogenesis of ASD, we construct cell type-specific lncRNA regulatory networks (Cycle) at the level of single cell nucleus.
+
+
+# Identificaton of cell type-specific lncRNA-mRNA regulatory networks
+
+Following the flowchart of Cycle, we could Infer cell type-specific lncRNA-mRNA regulatory networks.
+```{r, eval=FALSE, include=TRUE}
+
+load('ASD_exp_3cell_types.rda')
+
+microglia_Cycle_network <- Cycle_network(ASD_Microglia_ncR_data, ASD_Microglia_mR_data, boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+microglia_Cycle_networks = do.call(rbind, microglia_Cycle_network)
+
+ASTFB_Cycle_network <- Cycle_network(ASD_ASTFB_ncR_data,ASD_ASTFB_mR_data, boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+ASTFB_Cycle_networks = do.call(rbind, ASTFB_Cycle_networks)
+
+Neumat_Cycle_network <- Cycle_network(ASD_Neumat_ncR_data,ASD_Neumat_mR_data, boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+Neumat_Cycle_networks = do.call(rbind, Neumat_Cycle_network)
+
+```
+
+
+# Discovering conserved and rewired lncRNA-mRNA regulatory networks 
+
+Given cell type-specific lncRNA-mRNA regulatory networks, we could discover conserved and rewired lncRNA-mRNA regulatory networks.
+```{r, eval=FALSE, include=TRUE}
+
+## Overlap of multiple hubs
+Overlap_net.all <- Overlap_net(Cycle_networks, overlap.num = 1, type = "least") 
+Overlap_net.1 <- Overlap_net(Cycle_networks, overlap.num = 1, type = "equal")
+Overlap_net.2 <- Overlap_net(Cycle_networks, overlap.num = 2, type = "least")
+Overlap_net.5 <- Overlap_net(Cycle_networks, overlap.num = 5, type = "least")
+Overlap_net.9 <- Overlap_net(Cycle_networks, overlap.num = 9, type = "least")
+Overlap_net.17 <- Overlap_net(Cycle_networks, overlap.num = 17, type = "equal")
+
+## Overlap of multiple hubs
+Overlap.hub.all <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "least") 
+Overlap.hub.1 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "equal")
+Overlap.hub.2 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 2, type = "least")
+Overlap.hub.5 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 5, type = "least")
+Overlap.hub.9 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 9, type = "least")
+Overlap.hub.17 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 17, type = "equal")
+
+Overlap_Cycle_network_rewired <- Overlap_net.1
+Overlap_Cycle_hubs_rewired <- Overlap.hub.1
+Overlap_Cycle_hubs_conserved <- Overlap.hub.17
+
+```
+
+
+# Calculating network similarity
+
+In terms of the identified cell type-specific lncRNA-mRNA regulatory networks, we calculate network similarity of cell types.
+```{r, eval=FALSE, include=TRUE}
+
+library(igraph)
+
+Cycle_networks <- list(as.data.frame(microglia_Cycle_networks), as.data.frame(ASTFB_Cycle_networks), as.data.frame(Neumat_Cycle_networks))
+Cycle_networks_sim <- Sim.network(Cycle_networks, Cycle_networks, directed = TRUE)
+Cycle_networks_unique <- 1-Cycle_networks_sim
+```
+
+
+# Calculating hub similarity
+
+In terms of the identified cell type-specific hub lncRNAs, we calculate the uniqueness of hub lncRNAs across cell types. 
+```{r}
+hub1 <- list(c("AP000469.2","C2-AS1","CACNA1C-AS2"), c("DNAJC27-AS1","HPN-AS1")) 
+hub2 <- list(c("CACNA1C-AS2","CALML3-AS1","CCDC148-AS1","DIAPH3-AS16"), c("LATS2-AS1", "HPN-AS1", "LINC00305"))
+Cycle_hub_Sim <- Sim.hub(hub1, hub2)
+Cycle_hub_unique <- 1-Cycle_hub_Sim
+
+```
+
+
+# Session information
+```{r}
+sessionInfo()
+```
+
