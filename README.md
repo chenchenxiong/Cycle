@@ -20,7 +20,7 @@ install.packages("devtools")
 library(devtools)
 install_github("chenchenxiong/Cycle")
 ```
-## Quick example to use LCSlncR
+## Quick example to use Cycle
 For inferring cell type-specific lncRNA-mRNA regulatory networks, users should prepare matched lncRNA and mRNA snRNA-seq expression data. Users can use the following scripts to infer cell type-specific lncRNA regulation. 
 
 ```{r echo=FALSE, results='hide', message=FALSE}
