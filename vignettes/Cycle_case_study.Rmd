@@ -377,6 +377,10 @@ rewired_network_list_FEA <- moduleFEA(rewired_network_list)
 rewired_network_FEA_GO <- dotplot(rewired_network_list_FEA[[1]][[1]],showCategory = 20,label_format=50)
 rewired_network_FEA_KEGG <- dotplot(rewired_network_list_FEA[[2]][[1]],showCategory = 20,label_format=100)
 rewired_network_FEA_Reactome <- dotplot(rewired_network_list_FEA[[3]][[1]],showCategory = 20,label_format=100)
+
+cell_markers  <- read.xlsx("D:/Z_project/2_LCSlncR_modified/0_data/5.biomarkers_data/Cell_marker_Human_seq_cellMarker2.xlsx") %>% tidyr::unite("marker", tissue_type, cancer_type, cell_name, sep=", ") %>% dplyr::select(marker, Symbol)   
+Overlap_LCSlncR_networks_rewired_gene = unique(c(unique(Overlap_LCSlncR_networks_rewired[,1]),Overlap_LCSlncR_networks_rewired[,2]))
+rewired_network_cellmarker_FEA = enricher(Overlap_LCSlncR_networks_rewired_gene,TERM2GENE=cell_markers)
 ```
 
 
