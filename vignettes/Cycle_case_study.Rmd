@@ -168,7 +168,7 @@ for(celltype in celltypes){
   lncR_data <- ASD_MAGIC_ncR_data[ASD_MAGIC_ncRmR_data_meta[ASD_MAGIC_ncRmR_data_meta$cluster==celltype,1],]
   mR_data <-ASD_MAGIC_mR_data[ASD_MAGIC_ncRmR_data_meta[ASD_MAGIC_ncRmR_data_meta$cluster==celltype,1],]
   cell_num <- nrow(lncR_data)
-  res_list <-  Cycle_network(lncR_data, mR_data, boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 12, dev=TRUE, iteration=TRUE, cell_id=NULL, maxiter=20)
+  res_list <-  Cycle_network(lncR_data, mR_data, boxsize = 0.1, p.value.cutoff = 0.01, num.cores = 12, dev=TRUE, iteration=TRUE, cell_id=NULL, maxiter=20)
   overlap <- Overlap.net(net = res_list, overlap.num = round(cell_num*0.9),type = 'least')
   colnames(overlap) <- c('lncRNAs','mRNAs')
   Cycle_networks[[celltype]] <- overlap
@@ -287,6 +287,7 @@ Overlap_net.1 <- Overlap.net(Cycle_networks, overlap.num = 1, type = "equal")
 Overlap_net.2 <- Overlap.net(Cycle_networks, overlap.num = 2, type = "least")
 Overlap_net.5 <- Overlap.net(Cycle_networks, overlap.num = 5, type = "least")
 Overlap_net.9 <- Overlap.net(Cycle_networks, overlap.num = 9, type = "least")
+Overlap_net.15 <- Overlap.net(Cycle_networks, overlap.num = 15, type = "least")
 Overlap_net.17 <- Overlap.net(Cycle_networks, overlap.num = 17, type = "equal")
 
 ## Overlap of multiple hubs
@@ -295,20 +296,21 @@ Overlap.hub.1 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "equal"
 Overlap.hub.2 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 2, type = "least")
 Overlap.hub.5 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 5, type = "least")
 Overlap.hub.9 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 9, type = "least")
+Overlap.hub.15 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 15, type = "least")
 Overlap.hub.17 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 17, type = "equal")
 
 Overlap_Cycle_network_rewired <- Overlap_net.1
 Overlap_Cycle_hubs_rewired <- Overlap.hub.1
-Overlap_Cycle_hubs_conserved <- Overlap.hub.17
+Overlap_Cycle_hubs_conserved <- Overlap.hub.15
 
-network_overlap_num <- c(nrow(Overlap_net.1)/nrow(Overlap_net.all),nrow(Overlap_net.2)/nrow(Overlap_net.all),nrow(Overlap_net.5)/nrow(Overlap_net.all),nrow(Overlap_net.9)/nrow(Overlap_net.all),nrow(Overlap_net.17)/nrow(Overlap_net.all))
-hub_overlap_num <- c(length(Overlap.hub.1)/length(Overlap.hub.all),length(Overlap.hub.2)/length(Overlap.hub.all),length(Overlap.hub.5)/length(Overlap.hub.all),length(Overlap.hub.9)/length(Overlap.hub.all),length(Overlap.hub.17)/length(Overlap.hub.all))
+network_overlap_num <- c(nrow(Overlap_net.1)/nrow(Overlap_net.all),nrow(Overlap_net.2)/nrow(Overlap_net.all),nrow(Overlap_net.5)/nrow(Overlap_net.all),nrow(Overlap_net.9)/nrow(Overlap_net.all),nrow(Overlap_net.15)/nrow(Overlap_net.all))
+hub_overlap_num <- c(length(Overlap.hub.1)/length(Overlap.hub.all),length(Overlap.hub.2)/length(Overlap.hub.all),length(Overlap.hub.5)/length(Overlap.hub.all),length(Overlap.hub.9)/length(Overlap.hub.all),length(Overlap.hub.15)/length(Overlap.hub.all))
 
 radar_plot_data <- rbind(hub_overlap_num,network_overlap_num)
-colnames(radar_plot_data) <- c('=1','>=2','>=5','>=9','=17')
+colnames(radar_plot_data) <- c('=1','>=2','>=5','>=9','>=15')
 rownames(radar_plot_data) <- c('Hub lncRNAs','Interactions')
 
-max_min <- data.frame('=1'=c(1,0),'>=2'=c(1,0),'>=5'=c(1,0),'>=9'=c(1,0),'=17'=c(1,0))
+max_min <- data.frame('=1'=c(1,0),'>=2'=c(1,0),'>=5'=c(1,0),'>=9'=c(1,0),'>=15'=c(1,0))
 rownames(max_min) <- c("Max", "Min")
 colnames(max_min) <- colnames(radar_plot_data)
 

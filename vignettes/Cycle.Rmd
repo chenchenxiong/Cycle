@@ -1,5 +1,5 @@
 ---
-title: "Contructing cell type-specific lncRNA-mRNA regulatory networks in ASD"
+title: "Contructing cell type-specific lncRNA-mRNA regulatory networks in ASD with Cycle"
 author: "Chenchen Xiong"
 date: '`r Sys.Date()`'
 output:
@@ -57,24 +57,26 @@ Given cell type-specific lncRNA-mRNA regulatory networks, we could discover cons
 ```{r, eval=FALSE, include=TRUE}
 
 ## Overlap of multiple hubs
-Overlap_net.all <- Overlap_net(Cycle_networks, overlap.num = 1, type = "least") 
-Overlap_net.1 <- Overlap_net(Cycle_networks, overlap.num = 1, type = "equal")
-Overlap_net.2 <- Overlap_net(Cycle_networks, overlap.num = 2, type = "least")
-Overlap_net.5 <- Overlap_net(Cycle_networks, overlap.num = 5, type = "least")
-Overlap_net.9 <- Overlap_net(Cycle_networks, overlap.num = 9, type = "least")
-Overlap_net.17 <- Overlap_net(Cycle_networks, overlap.num = 17, type = "equal")
+Overlap_net.all <- Overlap.net(Cycle_networks, overlap.num = 1, type = "least") 
+Overlap_net.1 <- Overlap.net(Cycle_networks, overlap.num = 1, type = "equal")
+Overlap_net.2 <- Overlap.net(Cycle_networks, overlap.num = 2, type = "least")
+Overlap_net.5 <- Overlap.net(Cycle_networks, overlap.num = 5, type = "least")
+Overlap_net.9 <- Overlap.net(Cycle_networks, overlap.num = 9, type = "least")
+Overlap_net.15 <- Overlap.net(Cycle_networks, overlap.num = 15, type = "least")
+Overlap_net.17 <- Overlap.net(Cycle_networks, overlap.num = 17, type = "equal")
 
 ## Overlap of multiple hubs
-Overlap.hub.all <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "least") 
-Overlap.hub.1 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "equal")
-Overlap.hub.2 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 2, type = "least")
-Overlap.hub.5 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 5, type = "least")
-Overlap.hub.9 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 9, type = "least")
-Overlap.hub.17 <- Overlap_hub(Cycle_hubs_lncRNAs, overlap.num = 17, type = "equal")
+Overlap.hub.all <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "least") 
+Overlap.hub.1 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "equal")
+Overlap.hub.2 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 2, type = "least")
+Overlap.hub.5 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 5, type = "least")
+Overlap.hub.9 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 9, type = "least")
+Overlap.hub.15 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 15, type = "least")
+Overlap.hub.17 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 17, type = "equal")
 
 Overlap_Cycle_network_rewired <- Overlap_net.1
 Overlap_Cycle_hubs_rewired <- Overlap.hub.1
-Overlap_Cycle_hubs_conserved <- Overlap.hub.17
+Overlap_Cycle_hubs_conserved <- Overlap.hub.15
 
 ```
 
