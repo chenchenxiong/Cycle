@@ -169,11 +169,9 @@ for(celltype in celltypes){
   mR_data <-ASD_MAGIC_mR_data[ASD_MAGIC_ncRmR_data_meta[ASD_MAGIC_ncRmR_data_meta$cluster==celltype,1],]
   cell_num <- nrow(lncR_data)
   res_list <-  Cycle_network(lncR_data, mR_data, boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 12, dev=TRUE, iteration=TRUE, cell_id=NULL, maxiter=20)
-  overlap <- Overlap.net(net = res_list,overlap.num = cell_num,type = 'equal')
-  overlap <- overlap$net.table
-  overlap_90pct <- overlap[which(overlap[,2]>=round(cell_num*0.9)),]
-  overlap_90pct_network <- overlap_90pct %>% separate(col = net.transform,into = c('lncRNAs','mRNAs'),sep = ' & ')
-  Cycle_networks[[celltype]] <- overlap_90pct_network[,1:2]
+  overlap <- Overlap.net(net = res_list, overlap.num = round(cell_num*0.9),type = 'least')
+  colnames(overlap) <- c('lncRNAs','mRNAs')
+  Cycle_networks[[celltype]] <- overlap
 }
 
 ```
