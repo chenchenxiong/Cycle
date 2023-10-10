@@ -315,9 +315,8 @@ Cycle_network <-
 #' @return Matrix object: The overlapped interactions.
 #'
 #' @examples
-#' library(igraph)
 #' net <- list(as_data_frame(sample_k_regular(10, 2)), as_data_frame(sample_k_regular(10, 3)), as_data_frame(sample_k_regular(10, 2)), as_data_frame(sample_k_regular(10, 3)))
-#' ceRNet_2 <- Overlap.ceRNet(net, overlap.num = 2, type = "least")
+#' ceRNet_2 <- Overlap.net(net, overlap.num = 2, type = "least")
 #'
 #' @references
 #' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
