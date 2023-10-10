@@ -25,6 +25,7 @@ For inferring cell type-specific lncRNA-mRNA regulatory networks, users should p
 
 ```{r echo=FALSE, results='hide', message=FALSE}
 ## Load Cycle package
+# Load processed matched lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
 library(Cycle)
 load('ASD_exp_3cell_types.rda')
 
