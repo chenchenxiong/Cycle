@@ -306,7 +306,7 @@ Cycle_network <-
 
 #' Identifying the overlap between multiple networks.
 #'
-#' @title Overlap.ceRNet
+#' @title Overlap.net
 #' @param net List object, the list of networks.
 #' @param overlap.num The minimum number of interactions existing in multiple networks.
 #' @param type The overlapped interactions in overlap.num networks ("equal") or at least overlap.num networks ("least").
