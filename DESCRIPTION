@@ -28,7 +28,8 @@ Imports: data.table,
     mldr,
     utiml,
     e1071,
-    fmsb
+    fmsb,
+    stringr
 Suggests: BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
