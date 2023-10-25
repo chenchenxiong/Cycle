@@ -27,6 +27,7 @@ install_github("chenchenxiong/Cycle")
 ```
 ## Quick example to use Cycle
 For inferring cell type-specific lncRNA-mRNA regulatory networks, users should prepare the matched lncRNA and mRNA snRNA-seq expression data. Users can use the following scripts to infer cell type-specific lncRNA regulation. 
+Load processed matched lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
 
 ```{r echo=FALSE, results='hide', message=FALSE}
 load('ASD_exp_3cell_types.rda')
@@ -48,7 +49,6 @@ for(i in 1:length(celltypes)){
   colnames(overlap) <- c('lncRNAs','mRNAs')
   Cycle_networks[[celltypes[i]]] <- overlap
 }
-
 ```
 
 ## License
