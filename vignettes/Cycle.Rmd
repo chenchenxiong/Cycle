@@ -25,7 +25,6 @@ library(Cycle)
 library(igraph)
 ```
 
-
 # Introduction
 
 As the pathogenesis of ASD involves multiple cell types and mul-tiple biological processes regulated by lncRNAs, thus it is crucial to study cell type-specific lncRNA regulation in ASD.
@@ -36,6 +35,7 @@ To explore the dynamic lncRNA regulation across different ASD cell types, we dev
 # Identificaton of cell type-specific lncRNA regulation
 
 Following the flowchart of Cycle, we could Infer cell type-specific lncRNA-mRNA regulatory networks.
+Load processed matched lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
 ```{r, eval=FALSE, include=TRUE}
 load('ASD_exp_3cell_types.rda')
 
@@ -56,7 +56,6 @@ for(i in 1:length(celltypes)){
   colnames(overlap) <- c('lncRNAs','mRNAs')
   Cycle_networks[[celltypes[i]]] <- overlap
 }
-
 ```
 
 
@@ -64,7 +63,6 @@ for(i in 1:length(celltypes)){
 ```{r, eval=FALSE, include=TRUE}
 Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
 names(Cycle_hubs_lncRNAs) = names(Cycle_networks)
-
 ```
 
 
