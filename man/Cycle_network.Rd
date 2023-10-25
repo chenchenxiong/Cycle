@@ -44,8 +44,9 @@ Constructing cell type-specific lncRNA-mRNA regulatory network
 \examples{
 # NOT RUN
 # load('ASD_exp_3cell_types.rda')
-# Cycle_network(lncR_data, mR_data, boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 12, dev=TRUE, iteration=TRUE, cell_id=NULL, maxiter=20)
-
+# microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 }
 \references{
 Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.

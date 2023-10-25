@@ -1,35 +1,19 @@
 Package: Cycle
 Type: Package
-Title: Constructing cell type-specific lncRNA regulatory networks in ASD with Cycle
+Title: Constructing cell type-specific lncRNA regulatory network in ASD
+        with Cycle
 Version: 0.1.0
 Author: ChenchenXiong
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: This package aims to construct cell type-specific lncRNA regulatory networks in ASD with Cycle
+Maintainer: ChenchenXiong <xiongchenchen_0730@126.com>
+Description: This package aims to construct cell type-specific lncRNA regulatory network in ASD with Cycle
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
-Imports: data.table,
-    readxl,
-    viridis,
-    phateR,
-    harmony,
-    igraph,
-    pracma,
-    corrplot,
-    ggplot2,
-    clusterProfiler,
-    foreach,
-    doParallel,
-    parallel,
-    reticulate,
-    dplyr,
-    Seurat,
-    miRspongeR,
-    mldr,
-    utiml,
-    e1071,
-    fmsb,
-    stringr
+Imports: data.table, readxl, viridis, phateR, Rmagic, harmony, igraph,
+        pracma, corrplot, ggplot2, enrichplot, clusterProfiler,tidyr,
+        foreach, doParallel, parallel, reticulate, dplyr, Seurat,
+        miRspongeR, mldr, utiml, e1071, fmsb, stringr
 Suggests: BiocStyle, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 RoxygenNote: 7.2.3
+NeedsCompilation: no
+Packaged: 2023-10-24 15:00:12 UTC; rootxcc

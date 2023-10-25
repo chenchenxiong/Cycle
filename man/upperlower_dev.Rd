@@ -32,3 +32,8 @@ upperlower_devresult: a list of upper result and lower result
 \description{
 Define the upper and lower neighborhood of each plot using local standard deviation
 }
+\references{
+Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
+Dai H, Li L, Zeng T, Chen L. Cell-specific network constructed by single-cell RNA sequencing data. Nucleic Acids Res. 2019 Jun 20;47(11):e62. doi: 10.1093/nar/gkz172.
+Wang X, Choi D, Roeder K. Constructing local cell-specific networks from single-cell data. Proc Natl Acad Sci U S A. 2021;118(51):e2113178118. doi:10.1073/pnas.2113178118
+}

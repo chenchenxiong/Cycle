@@ -30,8 +30,25 @@ Random_net_parallel(
 \item{num.cores}{number of parallel cores (2 in default)}
 }
 \value{
-A vector: The significance -log10(p-value) of topological characteristics (path length and density) of a biological network.
+A List: The significance p-value and -log10(p-value) of topological characteristics (path length and density) of a biological network.
 }
 \description{
 Generate random networks in parallel and statistical significance p value of topological characteristics (path length and density) in biological networks.
+}
+\examples{
+#' # NOT RUN
+# load('ASD_exp_3cell_types.rda')
+# Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100], ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# g1 <- Cycle_networks
+# g1 <- make_graph(c(t(g1[, 1:2])),directed = F)
+# m <- gsize(g1)
+# n <- vcount(g1)
+# l <- mean_distance(g1)
+# d <- edge_density(g1)
+# pvalue_path_density <- Random_net_parallel(l, d, n, m, perm = 100, directed = FALSE, num.cores = 4)
+
+}
+\references{
+Csardi G, Nepusz T. The igraph software package for complex network research.
+InterJournal, Complex Systems. 2006, 1695.
 }

@@ -20,8 +20,14 @@ A vector: The overlapped hubs.
 Identifying the overlap between multiple lists of hubs.
 }
 \examples{
-hub <- list(c("ncRNA1", "ncRNA2", "ncRNA3", "ncRNA4"), c("ncRNA1", "ncRNA2", "ncRNA4", "ncRNA5"), c("ncRNA1", "ncRNA2", "ncRNA5", "ncRNA6"), c("ncRNA1", "ncRNA3", "ncRNA4", "ncRNA6"))
-hub_2 <- Overlap.hub(hub, overlap.num = 2, type = "least")
+# NOT RUN
+# load('ASD_exp_3cell_types.rda')
+# microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+# Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
+# Overlap_hub.2 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 2, type = "least")
 
 }
 \references{

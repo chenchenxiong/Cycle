@@ -20,8 +20,14 @@ Matrix object: The overlapped interactions.
 Identifying the overlap between multiple networks.
 }
 \examples{
-net <- list(as_data_frame(sample_k_regular(10, 2)), as_data_frame(sample_k_regular(10, 3)), as_data_frame(sample_k_regular(10, 2)), as_data_frame(sample_k_regular(10, 3)))
-ceRNet_2 <- Overlap.net(net, overlap.num = 2, type = "least")
+# NOT RUN
+# load('ASD_exp_3cell_types.rda')
+# microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+# Overlap_net.all <- Overlap.net(Cycle_networks, overlap.num = 1, type = "least")
+# Overlap_net.1 <- Overlap.net(Cycle_networks, overlap.num = 1, type = "equal")
 
 }
 \references{

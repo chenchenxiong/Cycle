@@ -32,25 +32,32 @@ library(Rmagic)
 library(viridis)
 library(phateR)
 library(harmony)
-library(pracma)
 
+library(pracma)
 library(foreach)
 library(doParallel)
 library(parallel)
+library(igraph)
 
 library(ggplot2)
 library(corrplot)
 library(clusterProfiler)
 library(enrichplot)
 
-library(igraph)
 library(miRspongeR)
 library(mldr)
 library(utiml)
 library(e1071)
 library(Cycle)
+
+library(tidyr)
+
 ```
 
+
+The detailed data preparation and preprocessing process is in the following **Data preparation and preprocessing** part.
+
+User also can download the processed matched lncRNA and mRNA snRNA-seq data with ASD samples from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG and identify cell type-specific lncRNA networks from **Inferring cell type-specific lncRNA-mRNA regulatory networks in ASD across 17 cell types** part.
 
 # Data preparation and preprocessing
 ```{r, eval=FALSE, include=TRUE}
@@ -155,8 +162,11 @@ ASD_MAGIC_ncRmR_data_cluster
 
 ```
 
+
 # Inferring cell type-specific lncRNA-mRNA regulatory networks in ASD across 17 cell types
 ```{r, eval=FALSE, include=TRUE}
+# Load processed matched lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
+
 load('ASD_MAGIC_ncRmR_data_cluster.rda')
 load('ASD_MAGIC_ncR_mR_data.rda')
 load('ASD_MAGIC_ncRmR_data_meta.rda')
@@ -179,21 +189,7 @@ for(celltype in celltypes){
 
 # Identifying cell type-specific hub lncRNAs using Possion model
 ```{r, eval=FALSE, include=TRUE}
-
-Cycle_hubs_lncRNAs <-  lapply(seq(Cycle_networks),function(i){
-  Cycle_network_graph <-  make_graph(c(t(Cycle_networks[[i]][,1:2])),directed=TRUE)
-	Cycle_network_degree <- degree(Cycle_network_graph,mode='out')
-	Cycle_network_degree <- Cycle_network_degree[Cycle_network_degree>0]
-  
-  n <- length(Cycle_network_degree) 
-  m <- nrow(Cycle_networks[[i]])
-  p1 <- m/(n^2)
-  lamda <- n*p1
-  p <- ppois(Cycle_network_degree - 1, lambda = lamda, lower=FALSE)
-  hub <- p[which(p < 0.05)]
-  hub_names <- names(hub)
-})
-
+Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
 names(Cycle_hubs_lncRNAs) = names(Cycle_networks)
 
 ```
@@ -202,14 +198,11 @@ names(Cycle_hubs_lncRNAs) = names(Cycle_networks)
 # Network topological analysis of cell type-specific lncRNA regulatory network
 ```{r, eval=FALSE, include=TRUE}
 
-library(tidyr)
-library(igraph)
-
 edge_density_pvalue=c()
 for (i in 1:length(Cycle_networks)) {
 
   g1 <- Cycle_networks[[i]]
-  g1 <- make_graph(c(t(g1[, 1:2])),directed = T)
+  g1 <- make_graph(c(t(g1[, 1:2])),directed = F)
   
   m <- gsize(g1)
   n <- vcount(g1)
@@ -219,13 +212,13 @@ for (i in 1:length(Cycle_networks)) {
   degree <- degree(g1,mode="all")
   fit <- fit_power_law(degree)
   
-  pvalue_path_density <- Random_net_parallel(l, d, n, m, perm = 100, directed = TRUE, num.cores = 4)]
+  pvalue_path_density <- Random_net_parallel(l, d, n, m, perm = 100, directed = FALSE, num.cores = 4)
   pvalue_path_raw <- pvalue_path_density$pvalue_path_raw
   pvalue_path <- pvalue_path_density$pvalue_path
   pvalue_density_raw <- pvalue_path_density$pvalue_density_raw
   pvalue_density <- pvalue_path_density$pvalue_density
   
-  network_attr_tm <- c(names(Cycle_networks)[i],m,n,l,d,pvalue_path_raw,pvalue_path,pvalue_density_raw,pvalue_density,fit$continuous,fit$alpha,fit$xmin,fit$logLik,fit$KS.stat,fit$KS.p)
+  network_attr_tmp <- c(names(Cycle_networks)[i],m,n,l,d,pvalue_path_raw,pvalue_path,pvalue_density_raw,pvalue_density,fit$continuous,fit$alpha,fit$xmin,fit$logLik,fit$KS.stat,fit$KS.p)
   
   edge_density_pvalue <- rbind(edge_density_pvalue,network_attr_tmp)
 }
@@ -238,20 +231,8 @@ rownames(edge_density_pvalue) <- NULL
 
 # Identifying cell-specific hub lncRNAs 
 ```{r, eval=FALSE, include=TRUE}
-Cycle_hubs_lncRNAs = lapply(seq(Cycle_networks),function(i){
-  
-  Cycle_network_graph = make_graph(c(t(Cycle_networks[[i]][,1:2])),directed=TRUE)
-	Cycle_network_degree <- degree(Cycle_network_graph,mode='out')
-	Cycle_network_degree=Cycle_network_degree[Cycle_network_degree>0]
-  
-  n <- length(Cycle_network_degree) 
-  m <- nrow(Cycle_networks[[i]])
-  p1 <- m/(n^2)
-  lamda <- n*p1
-  p <- ppois(Cycle_network_degree - 1, lambda = lamda, lower=FALSE)
-  hub <- p[which(p < 0.05)]
-  hub_names <- names(hub)
-})
+Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
+names(Cycle_hubs_lncRNAs) = names(Cycle_networks)
 
 ```
 
@@ -262,7 +243,7 @@ Cycle_hubs_lncRNAs = lapply(seq(Cycle_networks),function(i){
 ## Calculating similarity matrix of cell type-specific lncRNA-mRNA regulatory networks across cell types
 Cycle_network_Sim <- Sim.network(Cycle_networks, Cycle_networks, directed = TRUE)
 ## Similarity plot in terms of cell type-specific lncRNA-mRNA regulatory netowork    
-rownames(Cycle_network_Sim) <- colnames(Cycle_network_Sim) <- unlist(lapply(names(Cycle_networks), function(x){strsplit(x,split = '_')}[[1]][2]))
+rownames(Cycle_network_Sim) <- colnames(Cycle_network_Sim) <- names(Cycle_networks)
 
 ## uniqueness of lncRNA-mRNA regulatory networks across cell types
 Cycle_network_uniueness <- 1-Cycle_network_Sim
@@ -271,7 +252,7 @@ corrplot(Cycle_network_uniueness, method = "pie", type = "lower", diag = FALSE)
 ## Calculating similarity matrix of cell type-specific hub lncRNAs across cell types
 Cycle_hub_Sim <- Sim.hub(Cycle_hubs_lncRNAs, Cycle_hubs_lncRNAs)
 ## uniqueness of lncRNA-mRNA regulatory networks across cell types
-rownames(Cycle_hub_Sim) <- colnames(Cycle_hub_Sim) <- unlist(lapply(names(Cycle_networks), function(x){strsplit(x,split = '_')}[[1]][2]))
+rownames(Cycle_hub_Sim) <- colnames(Cycle_hub_Sim) <- names(Cycle_networks)
 Cycle_hub_Sim_uniueness <- 1-Cycle_hub_Sim
 corrplot(Cycle_hub_Sim_uniueness, method = "pie", type = "lower", diag = FALSE)
 
@@ -336,7 +317,6 @@ legend(
   )
   recordPlot()
 }
-print(radar)
 ggsave(plot = replayPlot(radar),filename = 'radar.tiff',dpi = 600,height = 5,width = 5,bg='transparent')
 ```
 
@@ -351,12 +331,12 @@ Overlap_Cycle_network_rewired_genes <- list(unique(c(Overlap_Cycle_network_rewir
 Overlap_Cycle_hubs_rewired_genes <- list(Overlap_Cycle_hubs_rewired)
 
 ## Performance of rewired lncRNA-mRNA regulatory networks
-## br strategt
+## BR strategy
 rewired_network_classify_br <- classify(lncRExp = ASD_MAGIC_ncR_data,mRExp = ASD_MAGIC_mR_data,celltype = cell_subtype,genelist = Overlap_Cycle_network_rewired_genes, method = "br", base.algorith = "SVM", cv.folds = 10, cv.sampling = "stratified", cv.seed = 12345)
 ## baseline strategy
 rewired_network_classify_baseline <- classify(lncRExp = ASD_MAGIC_ncR_data,mRExp = ASD_MAGIC_mR_data,celltype = cell_subtype,genelist = Overlap_Cycle_network_rewired_genes, method = "baseline", base.algorith = "SVM", cv.folds = 10, cv.sampling = "stratified", cv.seed = 12345)
 ## RANDOM method
-rewired_network_classify_random <- classify(lncRExp = ASD_MAGIC_ncR_data,mRExp = ASD_MAGIC_mR_data,celltype = cell_subtype,genelist = Overlap_Cycle_network_rewired_genes, method = "br", base.algorith = "RANDOM", cv.folds = 10, cv.sampling = "stratified", cv.seed = 12345)
+rewired_network_classify_random <- classify(lncRExp = ASD_MAGIC_ncR_data,mRExp = ASD_MAGIC_mR_data,celltype = cell_subtype,genelist = Overlap_Cycle_network_rewired_genes, method = "br", base.algorith = "RANDOM", cv.seed = 12345)
 
 ## Performance of rewired hub lncRNAs
 ## br strategy
@@ -364,7 +344,7 @@ rewired_hubs_classify_br <- classify(lncRExp = ASD_MAGIC_ncR_data,mRExp = ASD_MA
 ## baseline strategt
 rewired_hubs_classify_baseline <- classify(lncRExp = ASD_MAGIC_ncR_data,mRExp = ASD_MAGIC_mR_data,celltype = cell_subtype,genelist = Overlap_Cycle_hubs_rewired_genes, method = "baseline", base.algorith = "SVM", cv.folds = 10, cv.sampling = "stratified", cv.seed = 12345)
 ## RANDOM method
-rewired_hubs_classify_random <- classify(lncRExp = ASD_MAGIC_ncR_data,mRExp = ASD_MAGIC_mR_data,celltype = cell_subtype,genelist = Overlap_Cycle_hubs_rewired_genes, method = "br", base.algorith = "RANDOM", cv.folds = 10, cv.sampling = "stratified", cv.seed = 12345)
+rewired_hubs_classify_random <- classify(lncRExp = ASD_MAGIC_ncR_data,mRExp = ASD_MAGIC_mR_data,celltype = cell_subtype,genelist = Overlap_Cycle_hubs_rewired_genes, method = "br", base.algorith = "RANDOM", cv.seed = 12345)
 
 ```
 
@@ -378,7 +358,7 @@ rewired_network_FEA_GO <- dotplot(rewired_network_list_FEA[[1]][[1]],showCategor
 rewired_network_FEA_KEGG <- dotplot(rewired_network_list_FEA[[2]][[1]],showCategory = 20,label_format=100)
 rewired_network_FEA_Reactome <- dotplot(rewired_network_list_FEA[[3]][[1]],showCategory = 20,label_format=100)
 
-cell_markers  <- read.xlsx("Cell_marker_Human_seq_cellMarker2.xlsx") %>% tidyr::unite("marker", tissue_type, cancer_type, cell_name, sep=", ") %>% dplyr::select(marker, Symbol)   
+cell_markers  <- read.xlsx("Cell_marker_Human.xlsx") %>% tidyr::unite("marker", tissue_type, cancer_type, cell_name, sep=", ") %>% dplyr::select(marker, Symbol)   
 Overlap_Cycle_networks_rewired_gene = unique(c(unique(Overlap_Cycle_networks_rewired[,1]),Overlap_Cycle_networks_rewired[,2]))
 rewired_network_cellmarker_FEA = enricher(Overlap_Cycle_networks_rewired_gene,TERM2GENE=cell_markers)
 ```
@@ -388,16 +368,16 @@ rewired_network_cellmarker_FEA = enricher(Overlap_Cycle_networks_rewired_gene,TE
 ```{r, eval=FALSE, include=TRUE}
 
 ## Identifying crosstalk network in terms of network similarity matrix between 17 cell types
-    Cycle_network_adjacency_matrix <- ifelse(Cycle_network_Sim > median(Cycle_network_Sim[lower.tri(Cycle_network_Sim)]), 1, 0)
-    diag(Cycle_network_adjacency_matrix) <- 0
-    colnames(Cycle_network_adjacency_matrix) <- rownames(Cycle_network_adjacency_matrix) <- unlist(lapply(names(Cycle_networks),function(x){strsplit(x,split = '_')[[1]][2]}))
-    Cycle_network_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_network_adjacency_matrix, mode = "undirected")
-    
+Cycle_network_adjacency_matrix <- ifelse(Cycle_network_Sim > median(Cycle_network_Sim[lower.tri(Cycle_network_Sim)]), 1, 0)
+diag(Cycle_network_adjacency_matrix) <- 0
+colnames(Cycle_network_adjacency_matrix) <- rownames(Cycle_network_adjacency_matrix) <- names(Cycle_networks)
+Cycle_network_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_network_adjacency_matrix, mode = "undirected")
+
 ## Identifying crosstalk network in terms of hub lncRNA similarity matrix between 17 cell types   
-    Cycle_hub_adjacency_matrix <- ifelse(Cycle_hub_Sim > median(Cycle_hub_Sim[lower.tri(Cycle_hub_Sim)]), 1, 0)
-    diag(Cycle_hub_adjacency_matrix) <- 0
-    colnames(Cycle_hub_adjacency_matrix) <- rownames(Cycle_hub_adjacency_matrix) <-  unlist(lapply(names(Cycle_networks),function(x){strsplit(x,split = '_')[[1]][2]}))
-    Cycle_hub_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_hub_adjacency_matrix, mode = "undirected")
+Cycle_hub_adjacency_matrix <- ifelse(Cycle_hub_Sim > median(Cycle_hub_Sim[lower.tri(Cycle_hub_Sim)]), 1, 0)
+diag(Cycle_hub_adjacency_matrix) <- 0
+colnames(Cycle_hub_adjacency_matrix) <- rownames(Cycle_hub_adjacency_matrix) <- names(Cycle_networks)
+Cycle_hub_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_hub_adjacency_matrix, mode = "undirected")
 
 ```
 

@@ -3,12 +3,14 @@
 #' @param gx  Gene expression values of gene x (a vector) in n cells
 #' @param gy  Gene expression values of gene y (a vector) in n cells
 #' @param boxsize Size of neighborhood (0.1 in default)
-#' @import pracma
+#' @importFrom pracma eps
 #' @import stats
 #' @return upperlower_result: a list of upper result and lower result
 #' @export
 #'
-#' @examples
+#' @references
+#' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
+#' Dai H, Li L, Zeng T, Chen L. Cell-specific network constructed by single-cell RNA sequencing data. Nucleic Acids Res. 2019 Jun 20;47(11):e62. doi: 10.1093/nar/gkz172.
 upperlower <-  function(gx, gy, boxsize = 0.1) {
   n <- length(gx)
   upper <- zeros(2, n)
@@ -48,12 +50,14 @@ upperlower <-  function(gx, gy, boxsize = 0.1) {
 #' @param iteration Whether need iterate (TRUE in default)
 #' @param cell_id cell numbers, NULL means all cell to compute (NULL in default)
 #' @param maxiter Maximum Number Of Iterations (20 in default)
-#' @import pracma
+#' @importFrom pracma eps
 #' @import stats
 #' @return upperlower_devresult: a list of upper result and lower result
 #' @export
-#'
-#' @examples
+#' @references
+#' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
+#' Dai H, Li L, Zeng T, Chen L. Cell-specific network constructed by single-cell RNA sequencing data. Nucleic Acids Res. 2019 Jun 20;47(11):e62. doi: 10.1093/nar/gkz172.
+#' Wang X, Choi D, Roeder K. Constructing local cell-specific networks from single-cell data. Proc Natl Acad Sci U S A. 2021;118(51):e2113178118. doi:10.1073/pnas.2113178118
 upperlower_dev <- function(gene1,
                           gene2,
                           boxsize = 0.1,
@@ -169,11 +173,10 @@ upperlower_dev <- function(gene1,
 #' @param iteration Whether need iterate (TRUE in default)
 #' @param cell_id cell numbers, NULL means all cell to compute (NULL in default)
 #' @param maxiter Maximum Number Of Iterations (20 in default)
-#' @import pracma
+#' @importFrom pracma eps
 #' @return res a vector, the normalized statistic of edge gx-gy in n cells
 #' @export
 #'
-#' @examples
 #' @references
 #' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
 #' Dai H, Li L, Zeng T, Chen L. Cell-specific network constructed by single-cell RNA sequencing data. Nucleic Acids Res. 2019 Jun 20;47(11):e62. doi: 10.1093/nar/gkz172.
@@ -228,7 +231,7 @@ csn_edge <-
 #' @param maxiter Maximum Number Of Iterations (20 in default)
 #' @import foreach
 #' @importFrom foreach %dopar%
-#' @import pracma
+#' @importFrom pracma eps
 #' @import parallel
 #' @import doParallel
 #' @import stats
@@ -239,8 +242,9 @@ csn_edge <-
 #' @examples
 #' # NOT RUN
 #' # load('ASD_exp_3cell_types.rda')
-#' # Cycle_network(lncR_data, mR_data, boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 12, dev=TRUE, iteration=TRUE, cell_id=NULL, maxiter=20)
-#'
+#' # microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 #' @references
 #' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
 Cycle_network <-
@@ -278,7 +282,6 @@ Cycle_network <-
         mR[, index[m, 2]],
         boxsize = boxsize,
         dev = dev,
-        md = 1,
         iteration = iteration,
         cell_id = cell_id,
         maxiter = maxiter
@@ -304,6 +307,45 @@ Cycle_network <-
     return(res_list)
   }
 
+
+
+#' Inferring hub lncRNAs
+#'
+#' @param net List object, the list of networks.
+#'
+#' @return List object, the list of hub lncRNAs.
+#' @import igraph
+#' @import stats
+#' @export
+#'
+#' @examples
+#' # NOT RUN
+#' # load('ASD_exp_3cell_types.rda')
+#' # microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # microglia_hubs_lncRNAs <- hub_discovery(microglia_Cycle_networks)
+hub_discovery <- function(net){
+
+  if(class(net)!= "list") {
+    stop("Please check your input network! The input network should be list object! \n")
+  }
+  hubs_lncRNAs <- lapply(seq(net),function(i){
+
+    network_graph <- make_graph(c(t(net[[i]][,1:2])),directed=TRUE)
+    network_degree <- degree(network_graph,mode='out')
+    network_degree <- network_degree[network_degree>0]
+
+    n <- length(network_degree)
+    m <- nrow(net[[i]])
+    p1 <- m/(n^2)
+    lamda <- n*p1
+    p <- ppois(network_degree - 1, lambda = lamda, lower=FALSE)
+    hub <- p[which(p < 0.05)]
+    hub_names <- names(hub)
+  })
+  return(hubs_lncRNAs)
+}
+
+
 #' Identifying the overlap between multiple networks.
 #'
 #' @title Overlap.net
@@ -315,8 +357,14 @@ Cycle_network <-
 #' @return Matrix object: The overlapped interactions.
 #'
 #' @examples
-#' net <- list(as_data_frame(sample_k_regular(10, 2)), as_data_frame(sample_k_regular(10, 3)), as_data_frame(sample_k_regular(10, 2)), as_data_frame(sample_k_regular(10, 3)))
-#' ceRNet_2 <- Overlap.net(net, overlap.num = 2, type = "least")
+#' # NOT RUN
+#' # load('ASD_exp_3cell_types.rda')
+#' # microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+#' # Overlap_net.all <- Overlap.net(Cycle_networks, overlap.num = 1, type = "least")
+#' # Overlap_net.1 <- Overlap.net(Cycle_networks, overlap.num = 1, type = "equal")
 #'
 #' @references
 #' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
@@ -352,8 +400,14 @@ Overlap.net <- function(net,
 #' @return A vector: The overlapped hubs.
 #'
 #' @examples
-#' hub <- list(c("ncRNA1", "ncRNA2", "ncRNA3", "ncRNA4"), c("ncRNA1", "ncRNA2", "ncRNA4", "ncRNA5"), c("ncRNA1", "ncRNA2", "ncRNA5", "ncRNA6"), c("ncRNA1", "ncRNA3", "ncRNA4", "ncRNA6"))
-#' hub_2 <- Overlap.hub(hub, overlap.num = 2, type = "least")
+#' # NOT RUN
+#' # load('ASD_exp_3cell_types.rda')
+#' # microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+#' # Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
+#' # Overlap_hub.2 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 2, type = "least")
 #'
 #' @references
 #' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
@@ -390,15 +444,29 @@ Overlap.hub <- function(hub,
 #' @param num.cores number of parallel cores (2 in default)
 #' @import foreach
 #' @importFrom foreach %dopar%
+#' @importFrom pracma eps
 #' @import parallel
 #' @import doParallel
-#' @import stats
 #' @import igraph
-#'
-#' @return A vector: The significance -log10(p-value) of topological characteristics (path length and density) of a biological network.
-#' @export
+#' @importFrom stats pnorm
+#' @importFrom stats sd
 #'
 #' @examples
+#' #' # NOT RUN
+#' # load('ASD_exp_3cell_types.rda')
+#' # Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100], ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # g1 <- Cycle_networks
+#' # g1 <- make_graph(c(t(g1[, 1:2])),directed = F)
+#' # m <- gsize(g1)
+#' # n <- vcount(g1)
+#' # l <- mean_distance(g1)
+#' # d <- edge_density(g1)
+#' # pvalue_path_density <- Random_net_parallel(l, d, n, m, perm = 100, directed = FALSE, num.cores = 4)
+#'
+#' @return A List: The significance p-value and -log10(p-value) of topological characteristics (path length and density) of a biological network.
+#' @export
+#' @references Csardi G, Nepusz T. The igraph software package for complex network research.
+#' InterJournal, Complex Systems. 2006, 1695.
 Random_net_parallel <-
   function(obser_path,
            obser_density,
@@ -437,11 +505,11 @@ Random_net_parallel <-
       -log10(pnorm(obser_density, mean(res[, 2]), sd(res[, 2]), lower.tail = FALSE) + eps(1))
 
     random_res <- list(
-      res <- res,
-      pvalue_path_raw <- pvalue_path_raw,
-      pvalue_path <- pvalue_path,
-      pvalue_density_raw <- pvalue_density_raw,
-      pvalue_density <- pvalue_density
+      res = res,
+      pvalue_path_raw = pvalue_path_raw,
+      pvalue_path = pvalue_path,
+      pvalue_density_raw = pvalue_density_raw,
+      pvalue_density = pvalue_density
     )
 
     return(random_res)
@@ -456,10 +524,18 @@ Random_net_parallel <-
 #' @importFrom igraph %s%
 #' @import igraph
 #'
-#' @return Sim: a similarity matrix between two list of networks
+#' @examples
+#' # NOT RUN
+#' # load('ASD_exp_3cell_types.rda')
+#' # microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+#' # Cycle_network_Sim <- Sim.network(Cycle_networks, Cycle_networks, directed = TRUE)
+#'
+#' @return A Matrix: a similarity matrix between two list of networks
 #' @export
 #'
-#' @examples
 #' @references
 #' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
 Sim.network <- function(net1, net2, directed = TRUE) {
@@ -496,6 +572,15 @@ Sim.network <- function(net1, net2, directed = TRUE) {
 #' @export
 #'
 #' @examples
+#' # NOT RUN
+#' # load('ASD_exp_3cell_types.rda')
+#' # microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+#' # Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+#' # Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
+#' # Cycle_hub_Sim <- Sim.hub(Cycle_hubs_lncRNAs, Cycle_hubs_lncRNAs)
+#'
 #' @references
 #' Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.
 Sim.hub <- function(hub1, hub2) {
@@ -518,21 +603,21 @@ Sim.hub <- function(hub1, hub2) {
 
 
 
-#' Evaluating the performance of lncRNA-mRNA network and hubs for classifying cell types.
+#' Evaluating the performance of lncRNA-mRNA networks and hubs for classifying cell types.
 #'
 #' @title classify
 #' @param lncRExp The lncRNA expression data, rows are samples, columns are genes.
 #' @param mRExp The mRNA expression data, rows are samples, columns are genes.
-#' @param mRExp cell types information
+#' @param celltype cell types information
 #' @param genelist A list of gene names.
 #' @param method The multi-label classification method. It also accepts the name of the method as a string.
 #' @param base.algorith The base algorithm of the multi-label classification method.
 #' @param cv.folds Number of folds (Default: 10).
 #' @param cv.sampling The method to split the data. (Default: "stratified")
 #' @param cv.seed An optional integer used to set the seed.
-#' @import mldr
-#' @import utiml
 #' @import e1071
+#' @importFrom mldr mldr_from_dataframe
+#' @importFrom utiml cv
 #' @export
 #' @return Matrix object: Multi-label classification results of BRCA.
 #'

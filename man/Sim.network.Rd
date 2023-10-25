@@ -14,10 +14,20 @@ Sim.network(net1, net2, directed = TRUE)
 \item{directed}{Logical value, network directed (TRUE) or undirected (FALSE)}
 }
 \value{
-Sim: a similarity matrix between two list of networks
+A Matrix: a similarity matrix between two list of networks
 }
 \description{
 Calculating similarity matrix between two list of cell type-specific lncRNA-mRNA networks
+}
+\examples{
+# NOT RUN
+# load('ASD_exp_3cell_types.rda')
+# microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+# Cycle_network_Sim <- Sim.network(Cycle_networks, Cycle_networks, directed = TRUE)
+
 }
 \references{
 Zhang J, Liu L, Xu T, Zhang W, Zhao C, Li S, Li J, Rao N, Le TD. Exploring cell-specific miRNA regulation with single-cell miRNA-mRNA co-sequencing data. BMC Bioinformatics.,22(1):578.

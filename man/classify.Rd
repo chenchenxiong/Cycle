@@ -19,7 +19,9 @@ classify(
 \arguments{
 \item{lncRExp}{The lncRNA expression data, rows are samples, columns are genes.}
 
-\item{mRExp}{cell types information}
+\item{mRExp}{The mRNA expression data, rows are samples, columns are genes.}
+
+\item{celltype}{cell types information}
 
 \item{genelist}{A list of gene names.}
 
@@ -37,7 +39,7 @@ classify(
 Matrix object: Multi-label classification results of BRCA.
 }
 \description{
-Evaluating the performance of lncRNA-mRNA network and hubs for classifying cell types.
+Evaluating the performance of lncRNA-mRNA networks and hubs for classifying cell types.
 }
 \references{
 Tsoumakas G, Katakis I, Vlahavas I. Mining multi-label data.
