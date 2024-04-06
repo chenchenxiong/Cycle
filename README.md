@@ -21,6 +21,7 @@ Fig. 1. Workflow of Cycle. Firstly, Cycle extracts the matched lncRNA and mRNA e
 install.packages("devtools")
 library(devtools)
 install_github("chenchenxiong/Cycle")
+library(Cycle)
 ```
 ## Quick example to use Cycle
 For inferring cell type-specific lncRNA-mRNA regulatory networks, users should prepare the matched lncRNA and mRNA snRNA-seq expression data. Users can use the following scripts to infer cell type-specific lncRNA regulation. 
