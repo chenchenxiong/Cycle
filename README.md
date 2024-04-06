@@ -27,7 +27,7 @@ For inferring cell type-specific lncRNA-mRNA regulatory networks, users should p
 Load processed matched lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
 
 ```{r echo=FALSE, results='hide', message=FALSE}
-load('ASD_exp_3cell_types.rda')
+data(ASD_exp_3cell_types.rda)
 
 microglia_Cycle_networks <- Cycle_network(Microglia_ASD_lncRNAs_data[1:100,1:100], Microglia_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
