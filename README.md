@@ -3,9 +3,7 @@
 
 # Introduction
 
-As the pathogenesis of ASD involves multiple cell types and mul-tiple biological processes regulated by lncRNAs, thus it is crucial to study cell type-specific lncRNA regulation in ASD.
-
-To explore the dynamic lncRNA regulation across different ASD cell types, we develop a novel method, Cycle, to construct cell type-specific lncRNA regulatory networks in ASD. 
+Autism spectrum disorder (ASD) is a class of complex neurodevelopment disorders with high genetic heterogeneity. Long non-coding RNAs (lncRNAs), as vital regulators, exert specific functions in different cell types and play pivotal roles in neurological diseases including ASD. Therefore, studying specific lncRNA regulation in various cell types is crucial for deciphering ASD molecular mechanisms. Existing computational methods utilize bulk transcriptomics data across all of cells or samples, which could reveal the commonalities, but ignore the specificity of lncRNA regulation across various cell types. Here, we present Cycle (Cell type-specific lncRNA regulatory network) to construct the landscape of cell type-specific lncRNA regulation in ASD. We find that each ASD cell type is unique in lncRNA regulation, and over one-third and all of cell type-specific lncRNA regulatory networks are scale-free and small-world networks, respectively. Across 17 ASD cell types, we discover that 19 rewired and 11 conserved modules, and eight rewired and three conserved hubs underlying in the identified cell type-specific lncRNA regulatory networks, are significantly enriched in ASD-related terms. Furthermore, more similar ASD cell types display stronger connection in the constructed cell similarity network. Finally, the comparison results demonstrate that Cycle is a potential method in uncovering cell type-specific lncRNA regulation.
 
 
 ## Flowchart illustration
