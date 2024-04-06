@@ -1,5 +1,5 @@
 # Cycle
-**Contructing cell type-specific lncRNA regulatory network in autism with Cycle**
+**Modelling cell type-specific lncRNA regulatory network in autism with Cycle**
 
 # Introduction
 
