@@ -11,7 +11,7 @@ Autism spectrum disorder (ASD) is a class of complex neurodevelopment disorders 
 A flowchart illustration of **Cycle** is shown in the following.
 
 <p align="center">
-  <img src="https://github.com/chenchenxiong/Cycle/blob/main/Cycle_flowchart.png" alt="Cycle flowchart illustration" border="0.1">
+  <img src="[https://github.com/chenchenxiong/Cycle/blob/main/Cycle_flowchart.png](https://github.com/chenchenxiong/Cycle/blob/main/Fig.%201.%20Workflow%20of%20Cycle.jpg)" alt="Cycle flowchart illustration" border="0.1">
 </p>
 
 Firstly, we perform data integration and data imputation, and extract the matched lncRNA and mRNA expression data by using gene annotation information from HGNC. Secondly, we identify 17 cell type-specific lncRNA regulatory networks for 17 ASD cell types. Finally, we perform downstream analysis consisting of topological analysis, uniqueness analysis, multiclass classification analysis, enrichment analysis, cell communication analysis, and biomarker discovery.
