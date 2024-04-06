@@ -1,0 +1,239 @@
+---
+title: "Case study of constructing cell type-specifc lncRNA regulatory networks in ASD across 17 cell types" 
+author: "Chenchen Xiong"
+date: '`r Sys.Date()`'
+output:
+    BiocStyle::html_document:
+      toc: yes
+    BiocStyle::pdf_document:
+      toc: yes
+vignette: >
+    %\VignetteIndexEntry{Case study of constructing cell type-specifc lncRNA regulatory networks in ASD} 
+    %\VignettePackage{Cycle} 
+    % \VignetteEngine{knitr::rmarkdown} 
+    % \usepackage[utf8]{inputenc} 
+    % \VignetteEncoding{UTF-8}
+---
+
+```{r style, echo=FALSE, results="asis", message=FALSE}
+BiocStyle::markdown()
+knitr::opts_chunk$set(tidy = FALSE,
+    warning = FALSE,
+    message = FALSE)
+```
+
+
+```{r echo=FALSE, results='hide', message=FALSE}
+library(Cycle)
+library(igraph)
+library(ggplot2)
+library(corrplot)
+library(clusterProfiler)
+library(enrichplot)
+library(miRspongeR)
+library(CellChat)
+library(patchwork)
+
+```
+
+# Load Data 
+```{r, eval=FALSE, include=TRUE}
+# exprMatrix data, Values in matrix are: 10x UMI counts from cellranger, log2-transformed, could download from https://autism.cells.ucsc.edu/
+# cell type-specific lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
+
+load('cell-type_specific_ASD_normalizedData.rda')
+
+```
+
+
+# Inferring cell type-specific lncRNA-mRNA regulatory networks in ASD across 17 cell types
+```{r, eval=FALSE, include=TRUE}
+
+celltypes = unlist(lapply(names(ASD_celltype_mRNAs_list),function(x) strsplit(x,'_')[[1]][1]))
+
+Cycle_networks = list()
+for(celltype in celltypes){
+  lncR_data <- ASD_celltype_lncRNAs_list[[paste0(celltype,'_ASD_lncRNAs_data')]][1:100,1:200]
+  mR_data <-ASD_celltype_mRNAs_list[[paste0(celltype,'_ASD_mRNAs_data')]][1:100,1:200]
+  res_list <-  Cycle_network(lncR_data, mR_data, boxsize = 0.1, p.value.cutoff = 0.01, num.cores = 12, dev=TRUE, iteration=TRUE, cell_id=NULL, maxiter=20)
+  
+  cell_num <- ncol(lncR_data)
+  overlap <- Overlap.net(net = res_list, overlap.num = round(cell_num*0.9),type = 'least')
+  colnames(overlap) <- c('lncRNAs','mRNAs')
+  Cycle_networks[[celltype]] <- overlap
+}
+
+```
+
+# Discovering conserved and rewired lncRNA-mRNA regulatory networks between 17 cell types
+```{r, eval=FALSE, include=TRUE}
+
+## Overlap of multiple hubs
+Overlap_net.all <- Overlap.net(Cycle_networks, overlap.num = 1, type = "least") 
+Overlap_net.1 <- Overlap.net(Cycle_networks, overlap.num = 1, type = "equal")
+Overlap_net.2 <- Overlap.net(Cycle_networks, overlap.num = 2, type = "least")
+Overlap_net.5 <- Overlap.net(Cycle_networks, overlap.num = 5, type = "least")
+Overlap_net.9 <- Overlap.net(Cycle_networks, overlap.num = 9, type = "least")
+Overlap_net.15 <- Overlap.net(Cycle_networks, overlap.num = 15, type = "least")
+Overlap_net.17 <- Overlap.net(Cycle_networks, overlap.num = 17, type = "equal")
+
+## Overlap of multiple hubs
+Overlap.hub.all <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "least") 
+Overlap.hub.1 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "equal")
+Overlap.hub.2 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 2, type = "least")
+Overlap.hub.5 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 5, type = "least")
+Overlap.hub.9 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 9, type = "least")
+Overlap.hub.15 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 15, type = "least")
+Overlap.hub.17 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 17, type = "equal")
+
+Overlap_Cycle_network_rewired <- Overlap_net.1
+Overlap_Cycle_network_conserved <- Overlap_net.15
+Overlap_Cycle_hubs_rewired <- Overlap.hub.1
+Overlap_Cycle_hubs_conserved <- Overlap.hub.15
+
+network_overlap_num <- c(nrow(Overlap_net.1)/nrow(Overlap_net.all),nrow(Overlap_net.2)/nrow(Overlap_net.all),nrow(Overlap_net.5)/nrow(Overlap_net.all),nrow(Overlap_net.9)/nrow(Overlap_net.all),nrow(Overlap_net.15)/nrow(Overlap_net.all))
+hub_overlap_num <- c(length(Overlap.hub.1)/length(Overlap.hub.all),length(Overlap.hub.2)/length(Overlap.hub.all),length(Overlap.hub.5)/length(Overlap.hub.all),length(Overlap.hub.9)/length(Overlap.hub.all),length(Overlap.hub.15)/length(Overlap.hub.all))
+
+radar_plot_data <- rbind(hub_overlap_num,network_overlap_num)
+colnames(radar_plot_data) <- c('=1','>=2','>=5','>=9','>=15')
+rownames(radar_plot_data) <- c('Hub lncRNAs','Interactions')
+
+max_min <- data.frame('=1'=c(1,0),'>=2'=c(1,0),'>=5'=c(1,0),'>=9'=c(1,0),'>=15'=c(1,0))
+rownames(max_min) <- c("Max", "Min")
+colnames(max_min) <- colnames(radar_plot_data)
+
+radar_plot_data <- rbind(max_min, radar_plot_data)
+
+radar  <-  {
+  fmsb::radarchart(
+  radar_plot_data, axistype = 1,
+  # Customize the polygon
+  pcol = c ("purple", "cyan"), pfcol = scales::alpha(c("purple", "cyan"),0.5), plwd = 3, plty = 1,
+  # Customize the grid
+  cglcol = "black", cglty = 1, cglwd =3,
+  # Customize the axis
+  axislabcol = "red",
+  # Variable labels
+  vlcex = 2, vlabels = colnames(radar_plot_data),
+  caxislabels = c('0%', "25%", "50%", "75%", "100%"))
+# Add an horizontal legend
+legend(
+  x = "bottom", legend = rownames(radar_plot_data[-c(1,2),]), horiz = TRUE,
+  bty = "n", pch = 22 , col = c("purple", "cyan"),
+  text.col = "black", cex = 1, pt.cex = 1.5
+  )
+  recordPlot()
+}
+ggsave(plot = replayPlot(radar),filename = 'radar.tiff',dpi = 600,height = 5,width = 5,bg='transparent')
+```
+
+
+# Identification of rewired and conserved lncRNA-target regulatory modules using MCL algorithm
+```{r, eval=FALSE, include=TRUE}
+
+library(miRspongeR)
+Overlap_Cycle_network_rewired_modules <- netModule(Overlap_Cycle_network_rewired, method = "MCL",modulesize = 3, save = TRUE,directed = T)
+
+Overlap_Cycle_network_conserved_modules <- netModule(Overlap_Cycle_network_conserved, method = "MCL",modulesize = 3, save = TRUE,directed = T)
+```
+
+# Identifying cell type-specific hub lncRNAs using Possion model
+```{r, eval=FALSE, include=TRUE}
+Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
+names(Cycle_hubs_lncRNAs) = names(Cycle_networks)
+
+```
+
+# Network topological analysis of cell type-specific lncRNA regulatory network
+```{r, eval=FALSE, include=TRUE}
+
+edge_density_pvalue=c()
+for (i in 1:length(Cycle_networks)) {
+
+  g1 <- Cycle_networks[[i]]
+  g1 <- make_graph(c(t(g1[, 1:2])),directed = F)
+  
+  m <- gsize(g1)
+  n <- vcount(g1)
+  d <- edge_density(g1)
+  
+  degree <- degree(g1,mode="all")
+  fit <- fit_power_law(degree)
+  
+  pvalue_density_list <- Random_net_parallel(l, d, n, m, perm = 100, directed = FALSE, num.cores = 4)
+  
+  network_attr_tmp <- c(names(Cycle_networks)[i],m,n,d,pvalue_density_list[[2]],pvalue_density_list[[3]],fit$continuous,fit$alpha,fit$xmin,fit$logLik,fit$KS.stat,fit$KS.p)
+  
+  edge_density_pvalue <- rbind(edge_density_pvalue,network_attr_tmp)
+}
+colnames(edge_density_pvalue) <- c('cell types','#edges','#nodes','density','density_pvalue','density_pvalue(-log(10))','fit$continuous','fit$alpha',"fit$xmin","fit$logLik","fit$KS.stat","fit$KS.p")
+rownames(edge_density_pvalue) <- NULL
+
+
+```
+
+# Calculating uniqueness of lncRNA-mRNA regulatory networks and hub lncRNAs
+```{r, eval=FALSE, include=TRUE}
+
+## Calculating similarity matrix of cell type-specific lncRNA-mRNA regulatory networks across cell types
+Cycle_network_Sim <- Sim.network(Cycle_networks, Cycle_networks, directed = TRUE)
+rownames(Cycle_network_Sim) <- colnames(Cycle_network_Sim) <- names(Cycle_networks)
+## uniqueness of lncRNA-mRNA regulatory networks across cell types
+Cycle_network_uniueness <- 1-Cycle_network_Sim
+corrplot(Cycle_network_uniueness, method = "pie", type = "lower", diag = FALSE)
+
+
+## Calculating similarity matrix of cell type-specific hub lncRNAs across cell types
+Cycle_hub_Sim <- Sim.hub(Cycle_hubs_lncRNAs, Cycle_hubs_lncRNAs)
+## uniqueness of lncRNA-mRNA regulatory networks across cell types
+rownames(Cycle_hub_Sim) <- colnames(Cycle_hub_Sim) <- names(Cycle_networks)
+Cycle_hub_Sim_uniueness <- 1-Cycle_hub_Sim
+corrplot(Cycle_hub_Sim_uniueness, method = "pie", type = "lower", diag = FALSE)
+
+```
+
+
+# Cell similarity network between 17 cell types
+```{r, eval=FALSE, include=TRUE}
+
+## In terms of network similarity matrix between 17 cell types
+Cycle_network_adjacency_matrix <- ifelse(Cycle_network_Sim > median(Cycle_network_Sim[lower.tri(Cycle_network_Sim)]), 1, 0)
+diag(Cycle_network_adjacency_matrix) <- 0
+colnames(Cycle_network_adjacency_matrix) <- rownames(Cycle_network_adjacency_matrix) <- names(Cycle_networks)
+Cycle_network_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_network_adjacency_matrix, mode = "undirected")
+
+## In terms of hub lncRNAs similarity matrix between 17 cell types   
+Cycle_hub_adjacency_matrix <- ifelse(Cycle_hub_Sim > median(Cycle_hub_Sim[lower.tri(Cycle_hub_Sim)]), 1, 0)
+diag(Cycle_hub_adjacency_matrix) <- 0
+colnames(Cycle_hub_adjacency_matrix) <- rownames(Cycle_hub_adjacency_matrix) <- names(Cycle_networks)
+Cycle_hub_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_hub_adjacency_matrix, mode = "undirected")
+
+## Cell similarity network by using lncRNA-mRNA interactions and hub lncRNAs in each ASD cell type
+Cycle_hub_network_adjacency_matrix <- Cycle_hub_adjacency_matrix*Cycle_network_adjacency_matrix
+Cycle_hub_network_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_hub_network_adjacency_matrix, mode = "undirected")
+deg3 = degree(Cycle_hub_network_adjacency_matrix_graph)
+V(Cycle_hub_network_adjacency_matrix_graph)$size=deg3*2
+
+## Cell similarity network plot
+p_network_communication={netVisual_circle(as.matrix(Cycle_hub_network_adjacency_matrix_graph), label.edge= F, title.name = "",vertex.label.color = 'black',edge.label.cex =5,vertex.label.cex=1.5,vertex.weight = deg3*3, weight.scale = F,edge.width.max = 6)
+  recordPlot()}
+print(p_network_communication)
+```
+
+# Disease and functional enrichment analysis of modules
+```{r, eval=FALSE, include=TRUE}
+
+library(miRspongeR)
+Overlap_Cycle_network_rewired_modules_DEA <- moduleDEA(Overlap_Cycle_network_rewired_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_rewired_modules_FEA <- moduleFEA(Overlap_Cycle_network_rewired_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_conserved_modules_DEA <- moduleDEA(Overlap_Cycle_network_conserved_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_conserved_modules_FEA <- moduleFEA(Overlap_Cycle_network_conserved_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+
+```
+
+
+# Session information
+```{r}
+sessionInfo()
+```
+

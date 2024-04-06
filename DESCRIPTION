@@ -1,0 +1,19 @@
+Package: Cycle
+Type: Package
+Title: Modelling cell type-specific lncRNA regulatory network in ASD
+        with Cycle
+Version: 0.1.0
+Author: ChenchenXiong
+Maintainer: ChenchenXiong <xiongchenchen_0730@126.com>
+Description: This package aims to construct cell type-specific lncRNA regulatory network in ASD with Cycle
+License: GPL-3
+Encoding: UTF-8
+Imports: igraph,
+        pracma, tidyr,
+        foreach, doParallel, parallel,dplyr, 
+        stringr
+Suggests: BiocStyle, knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+RoxygenNote: 7.2.3
+NeedsCompilation: no
+Packaged: 2024-4-6 12:00:12 UTC; rootxcc
