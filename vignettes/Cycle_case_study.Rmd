@@ -1,5 +1,5 @@
 ---
-title: "Case study of constructing cell type-specifc lncRNA regulatory networks in ASD across 17 cell types" 
+title: "Case study of modelling cell type-specific lncRNA regulatory network in autism with Cycle" 
 author: "Chenchen Xiong"
 date: '`r Sys.Date()`'
 output:
@@ -38,8 +38,12 @@ library(clusterProfiler)
 
 # Load Data 
 ```{r, eval=FALSE, include=TRUE}
-# exprMatrix data, Values in matrix are: 10x UMI counts from cellranger, log2-transformed, could download from https://autism.cells.ucsc.edu/
+# ASD expression data, Values in matrix are 10x UMI counts from cellranger, log2-transformed.
+# exprMatrix data could download from https://autism.cells.ucsc.edu/
+
 # cell type-specific lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
+
+## For user own data, users should prepare the matched lncRNA and mRNA snRNA-seq expression data, ensuring that the matrix values are 10x UMI counts from cellranger, standardized through log2-transformation, with the rows of the matrix representing samples and the columns representing genes.
 
 load('cell-type_specific_ASD_normalizedData.rda')
 
@@ -65,7 +69,7 @@ for(celltype in celltypes){
 
 ```
 
-# Discovering conserved and rewired lncRNA-mRNA regulatory networks between 17 cell types
+# Discovering stable and rewired lncRNA-mRNA regulatory networks between 17 cell types
 ```{r, eval=FALSE, include=TRUE}
 
 ## Overlap of multiple hubs
@@ -87,9 +91,9 @@ Overlap.hub.15 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 15, type = "leas
 Overlap.hub.17 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 17, type = "equal")
 
 Overlap_Cycle_network_rewired <- Overlap_net.1
-Overlap_Cycle_network_conserved <- Overlap_net.15
+Overlap_Cycle_network_stable <- Overlap_net.15
 Overlap_Cycle_hubs_rewired <- Overlap.hub.1
-Overlap_Cycle_hubs_conserved <- Overlap.hub.15
+Overlap_Cycle_hubs_stable <- Overlap.hub.15
 
 network_overlap_num <- c(nrow(Overlap_net.1)/nrow(Overlap_net.all),nrow(Overlap_net.2)/nrow(Overlap_net.all),nrow(Overlap_net.5)/nrow(Overlap_net.all),nrow(Overlap_net.9)/nrow(Overlap_net.all),nrow(Overlap_net.15)/nrow(Overlap_net.all))
 hub_overlap_num <- c(length(Overlap.hub.1)/length(Overlap.hub.all),length(Overlap.hub.2)/length(Overlap.hub.all),length(Overlap.hub.5)/length(Overlap.hub.all),length(Overlap.hub.9)/length(Overlap.hub.all),length(Overlap.hub.15)/length(Overlap.hub.all))
@@ -128,13 +132,13 @@ ggsave(plot = replayPlot(radar),filename = 'radar.tiff',dpi = 600,height = 5,wid
 ```
 
 
-# Identification of rewired and conserved lncRNA-target regulatory modules using MCL algorithm
+# Identification of rewired and stable lncRNA-target regulatory modules using MCL algorithm
 ```{r, eval=FALSE, include=TRUE}
 
 library(miRspongeR)
 Overlap_Cycle_network_rewired_modules <- netModule(Overlap_Cycle_network_rewired, method = "MCL",modulesize = 3, save = TRUE,directed = T)
 
-Overlap_Cycle_network_conserved_modules <- netModule(Overlap_Cycle_network_conserved, method = "MCL",modulesize = 3, save = TRUE,directed = T)
+Overlap_Cycle_network_stable_modules <- netModule(Overlap_Cycle_network_stable, method = "MCL",modulesize = 3, save = TRUE,directed = T)
 ```
 
 # Identifying cell type-specific hub lncRNAs using Possion model
@@ -226,8 +230,8 @@ print(p_network_communication)
 library(miRspongeR)
 Overlap_Cycle_network_rewired_modules_DEA <- moduleDEA(Overlap_Cycle_network_rewired_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
 Overlap_Cycle_network_rewired_modules_FEA <- moduleFEA(Overlap_Cycle_network_rewired_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
-Overlap_Cycle_network_conserved_modules_DEA <- moduleDEA(Overlap_Cycle_network_conserved_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
-Overlap_Cycle_network_conserved_modules_FEA <- moduleFEA(Overlap_Cycle_network_conserved_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_stable_modules_DEA <- moduleDEA(Overlap_Cycle_network_stable_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_stable_modules_FEA <- moduleFEA(Overlap_Cycle_network_stable_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
 
 ```
 
