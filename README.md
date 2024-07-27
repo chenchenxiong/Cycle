@@ -18,35 +18,78 @@ Fig. 1. Workflow of Cycle. Firstly, Cycle extracts the matched lncRNA and mRNA e
 
 # Installation
 ```{r echo=FALSE, results='hide', message=FALSE}
-install.packages("devtools")
-library(devtools)
-install_github("chenchenxiong/Cycle")
+## Load required R packages
 library(Cycle)
-```
-## Quick example to use Cycle
-For inferring cell type-specific lncRNA-mRNA regulatory networks, users should prepare the matched lncRNA and mRNA snRNA-seq expression data. Users can use the following scripts to infer cell type-specific lncRNA regulation. 
-Load processed matched lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
+library(igraph)
 
-```{r echo=FALSE, results='hide', message=FALSE}
-data(ASD_exp_3cell_types.rda)
+## Load prepared datasets
+load('ASD_exp_3cell_types.rda')
 
-microglia_Cycle_networks <- Cycle_network(Microglia_ASD_lncRNAs_data[1:100,1:100], Microglia_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+# Identificaton of cell type-specific lncRNA regulation
+## lncRNA regulation of microglia
+microglia_Cycle_networks <- Cycle_network(ASD_Microglia_ncR_data[1:100,1:100], ASD_Microglia_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
-ASTFB_Cycle_networks <- Cycle_network(ASTFB_ASD_lncRNAs_data[1:100,1:100],ASTFB_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+## lncRNA regulation of ASTFB
+ASTFB_Cycle_networks <- Cycle_network(ASD_ASTFB_ncR_data[1:100,1:100],ASD_ASTFB_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
-Neumat_Cycle_networks <- Cycle_network(Neumat_ASD_lncRNAs_data[1:100,1:100],Neumat_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
+## lncRNA regulation of Neumat
+Neumat_Cycle_networks <- Cycle_network(ASD_Neumat_ncR_data[1:100,1:100],ASD_Neumat_mR_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
+## Integrating cell type-specific lncRNA-mRNA regulatory network
 celltypes = c('Microglia', 'ASTFB', 'Neumat')
-Cycle_networks_tmp = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
 
-Cycle_networks = list()
-for(i in 1:length(celltypes)){
-  res_list <- Cycle_networks_tmp[[i]]
-  cell_num <- length(res_list)
-  overlap <- Overlap.net(net = res_list, overlap.num = round(cell_num*0.9),type = 'least')
-  colnames(overlap) <- c('lncRNAs','mRNAs')
-  Cycle_networks[[celltypes[i]]] <- overlap
-}
+# Identifying cell type-specific hub lncRNAs 
+Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
+names(Cycle_hubs_lncRNAs) = names(Cycle_networks)
+
+# Discovering stable and rewired lncRNA regulation
+## Given cell type-specific lncRNA-mRNA regulatory networks, we could discover stable and rewired lncRNA-mRNA regulatory networks.
+Overlap_net.all <- Overlap.net(Cycle_networks, overlap.num = 1, type = "least") 
+Overlap_net.1 <- Overlap.net(Cycle_networks, overlap.num = 1, type = "equal")
+Overlap_net.2 <- Overlap.net(Cycle_networks, overlap.num = 2, type = "least")
+Overlap_net.5 <- Overlap.net(Cycle_networks, overlap.num = 5, type = "least")
+Overlap_net.9 <- Overlap.net(Cycle_networks, overlap.num = 9, type = "least")
+Overlap_net.15 <- Overlap.net(Cycle_networks, overlap.num = 15, type = "least")
+Overlap_net.17 <- Overlap.net(Cycle_networks, overlap.num = 17, type = "equal")
+
+Overlap_Cycle_network_rewired <- Overlap_net.1
+Overlap_Cycle_network_stable <- Overlap_net.15
+
+## Given cell type-specific lncRNA-mRNA regulatory networks, we could discover stable and rewired hub lncRNAs.
+Overlap.hub.all <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "least") 
+Overlap.hub.1 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "equal")
+Overlap.hub.2 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 2, type = "least")
+Overlap.hub.5 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 5, type = "least")
+Overlap.hub.9 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 9, type = "least")
+Overlap.hub.15 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 15, type = "least")
+Overlap.hub.17 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 17, type = "equal")
+
+Overlap_Cycle_hubs_rewired <- Overlap.hub.1
+Overlap_Cycle_hubs_stable <- Overlap.hub.15
+
+# Uniqueness of cell type-specific lncRNA regulation
+##　Uniqueness of　lncRNA-mRNA regulatory networks across cell types. 
+Cycle_networks_sim <- Sim.network(Cycle_networks, Cycle_networks, directed = TRUE)
+Cycle_networks_unique <- 1-Cycle_networks_sim
+
+## Uniqueness of hub lncRNAs across cell types. 
+Cycle_hub_Sim <- Sim.hub(Cycle_hubs_lncRNAs, Cycle_hubs_lncRNAs)
+Cycle_hub_unique <- 1-Cycle_hub_Sim
+
+#　Cell similarity network in terms of network similarity matrix between 17 cell types
+## lncRNA-mRNA regulatory networks
+Cycle_network_adjacency_matrix <- ifelse(Cycle_networks_sim > median(Cycle_networks_sim[lower.tri(Cycle_networks_sim)]), 1, 0)
+diag(Cycle_network_adjacency_matrix) <- 0
+colnames(Cycle_network_adjacency_matrix) <- rownames(Cycle_network_adjacency_matrix) <- names(Cycle_networks)
+Cycle_network_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_network_adjacency_matrix, mode = "undirected")
+
+## hub lncRNAs 
+Cycle_hub_adjacency_matrix <- ifelse(Cycle_hub_Sim > median(Cycle_hub_Sim[lower.tri(Cycle_hub_Sim)]), 1, 0)
+diag(Cycle_hub_adjacency_matrix) <- 0
+colnames(Cycle_hub_adjacency_matrix) <- rownames(Cycle_hub_adjacency_matrix) <- names(Cycle_networks)
+Cycle_hub_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_hub_adjacency_matrix, mode = "undirected")
+
 ```
 
 ## License
