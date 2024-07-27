@@ -1,10 +1,10 @@
 # Cycle
+
 **Modelling cell type-specific lncRNA regulatory network in autism with Cycle**
 
 # Introduction
 
 Autism spectrum disorder (ASD) is a class of complex neurodevelopment disorders with high genetic heterogeneity. Long non-coding RNAs (lncRNAs), as vital regulators, exert specific functions in different cell types and play pivotal roles in neurological diseases including ASD. Therefore, studying specific lncRNA regulation in various cell types is crucial for deciphering ASD molecular mechanisms. Existing computational methods utilize bulk transcriptomics data across all of cells or samples, which could reveal the commonalities, but ignore the specificity of lncRNA regulation across various cell types. Here, we present Cycle (Cell type-specific lncRNA regulatory network) to construct the landscape of cell type-specific lncRNA regulation in ASD. We find that each ASD cell type is unique in lncRNA regulation, and over one-third and all of cell type-specific lncRNA regulatory networks are scale-free and small-world networks, respectively. Across 17 ASD cell types, we discover that 19 rewired and 11 conserved modules, and eight rewired and three conserved hubs underlying in the identified cell type-specific lncRNA regulatory networks, are significantly enriched in ASD-related terms. Furthermore, more similar ASD cell types display stronger connection in the constructed cell similarity network. Finally, the comparison results demonstrate that Cycle is a potential method in uncovering cell type-specific lncRNA regulation.
-
 
 ## Flowchart illustration
 
@@ -17,6 +17,22 @@ A flowchart illustration of **Cycle** is shown in the following.
 Fig. 1. Workflow of Cycle. Firstly, Cycle extracts the matched lncRNA and mRNA expression data by using gene annotation information from HGNC (HUGO gene Nomenclature Committee), and further retain the highly expressed lncRNAs and mRNAs for each cell type. In total, we have obtained 17 cell type-specific expression data of highly expressed lncRNAs and mRNAs. Secondly, Cycle models cell type-specific lncRNA regulatory networks for 17 ASD cell types. Furthermore, Cycle identifies the rewired and conserved modules, and infers hubs based on the constructed cell type-specific lncRNA regulatory networks. Finally, Cycle conducts four types of downstream analyses, including modules identification, hub inference, network topological analysis, uniqueness analysis, cell similarity network construction, and enrichment analysis.
 
 # Installation
+
+```
+install.packages("devtools")
+library(devtools)
+install_github("chenchenxiong/Cycle")
+library(Cycle)
+```
+
+## Quick example to use Cycle
+
+For inferring cell type-specific lncRNA-mRNA regulatory networks, users should prepare the matched lncRNA and mRNA snRNA-seq expression data, ensuring that the matrix values are 10x UMI counts from cellranger, standardized through log2-transformation, with the rows of the matrix representing samples and the columns representing genes.
+
+For convenience, the datasets of three cell types (Microglia, ASTFB and Neumat) prepared for users are from our datasets. Load all processed matched lncRNA and mRNA snRNA-seq data with ASD samples of 17 cell types can be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
+
+Users can use the following codes to infer cell type-specific lncRNA regulation. 
+
 ```{r echo=FALSE, results='hide', message=FALSE}
 ## Load required R packages
 library(Cycle)
@@ -90,7 +106,15 @@ diag(Cycle_hub_adjacency_matrix) <- 0
 colnames(Cycle_hub_adjacency_matrix) <- rownames(Cycle_hub_adjacency_matrix) <- names(Cycle_networks)
 Cycle_hub_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_hub_adjacency_matrix, mode = "undirected")
 
+# Disease and functional enrichment analysis of modules
+library(miRspongeR)
+Overlap_Cycle_network_rewired_modules_DEA <- moduleDEA(Overlap_Cycle_network_rewired_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_rewired_modules_FEA <- moduleFEA(Overlap_Cycle_network_rewired_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_stable_modules_DEA <- moduleDEA(Overlap_Cycle_network_stable_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_stable_modules_FEA <- moduleFEA(Overlap_Cycle_network_stable_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+
 ```
 
 ## License
+
 GPL-3
