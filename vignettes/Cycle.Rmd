@@ -1,5 +1,5 @@
 ---
-title: "Contructing cell type-specific lncRNA-mRNA regulatory networks in ASD with Cycle"
+title: "Modelling cell type-specific lncRNA regulatory network in autism with Cycle"
 author: "Chenchen Xiong"
 date: '`r Sys.Date()`'
 output:
@@ -37,14 +37,21 @@ To explore the dynamic lncRNA regulation across different ASD cell types, we dev
 Following the flowchart of Cycle, we could Infer cell type-specific lncRNA-mRNA regulatory networks.
 Load processed matched lncRNA and mRNA snRNA-seq data with ASD samples could be downloaded from https://drive.google.com/drive/folders/1_xjA_S77POIh28w49trPnuFUCTWagBzG
 ```{r, eval=FALSE, include=TRUE}
+
+## Load prepared datasets
 load('ASD_exp_3cell_types.rda')
 
+# Identificaton of cell type-specific lncRNA regulation
+## lncRNA regulation of microglia
 microglia_Cycle_networks <- Cycle_network(Microglia_ASD_lncRNAs_data[1:100,1:100], Microglia_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
+## lncRNA regulation of ASTFB
 ASTFB_Cycle_networks <- Cycle_network(ASTFB_ASD_lncRNAs_data[1:100,1:100],ASTFB_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
+## lncRNA regulation of Neumat
 Neumat_Cycle_networks <- Cycle_network(Neumat_ASD_lncRNAs_data[1:100,1:100],Neumat_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
+# Discovering stable and rewired lncRNA regulation
 celltypes = c('Microglia', 'ASTFB', 'Neumat')
 Cycle_networks_tmp = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
 
@@ -66,9 +73,9 @@ names(Cycle_hubs_lncRNAs) = names(Cycle_networks)
 ```
 
 
-# Discovering conserved and rewired lncRNA regulation
+# Discovering stable and rewired lncRNA regulation
 
-Given cell type-specific lncRNA-mRNA regulatory networks, we could discover conserved and rewired lncRNA-mRNA regulatory networks.
+Given cell type-specific lncRNA-mRNA regulatory networks, we could discover stable and rewired lncRNA-mRNA regulatory networks.
 ```{r, eval=FALSE, include=TRUE}
 
 ## Overlap of multiple hubs
@@ -81,11 +88,11 @@ Overlap_net.15 <- Overlap.net(Cycle_networks, overlap.num = 15, type = "least")
 Overlap_net.17 <- Overlap.net(Cycle_networks, overlap.num = 17, type = "equal")
 
 Overlap_Cycle_network_rewired <- Overlap_net.1
-Overlap_Cycle_network_conserved <- Overlap_net.15
+Overlap_Cycle_network_stable <- Overlap_net.15
 ```
 
 
-Given cell type-specific lncRNA-mRNA regulatory networks, we could discover conserved and rewired hub lncRNAs.
+Given cell type-specific lncRNA-mRNA regulatory networks, we could discover stable and rewired hub lncRNAs.
 ```{r, eval=FALSE, include=TRUE}
 ## Overlap of multiple hubs
 Overlap.hub.all <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 1, type = "least") 
@@ -97,7 +104,7 @@ Overlap.hub.15 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 15, type = "leas
 Overlap.hub.17 <- Overlap.hub(Cycle_hubs_lncRNAs, overlap.num = 17, type = "equal")
 
 Overlap_Cycle_hubs_rewired <- Overlap.hub.1
-Overlap_Cycle_hubs_conserved <- Overlap.hub.15
+Overlap_Cycle_hubs_stable <- Overlap.hub.15
 ```
 
 
@@ -139,6 +146,17 @@ colnames(Cycle_hub_adjacency_matrix) <- rownames(Cycle_hub_adjacency_matrix) <- 
 Cycle_hub_adjacency_matrix_graph <- graph_from_adjacency_matrix(Cycle_hub_adjacency_matrix, mode = "undirected")
 ```
 
+
+# Disease and functional enrichment analysis of modules
+```{r, eval=FALSE, include=TRUE}
+
+library(miRspongeR)
+Overlap_Cycle_network_rewired_modules_DEA <- moduleDEA(Overlap_Cycle_network_rewired_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_rewired_modules_FEA <- moduleFEA(Overlap_Cycle_network_rewired_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_stable_modules_DEA <- moduleDEA(Overlap_Cycle_network_stable_modules, ont = "DO", OrgDb = "org.Hs.eg.db", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+Overlap_Cycle_network_stable_modules_FEA <- moduleFEA(Overlap_Cycle_network_stable_modules,ont = "ALL", padjustvaluecutoff = 0.05, padjustedmethod = "BH")
+
+```
 
 # Session information
 ```{r}
