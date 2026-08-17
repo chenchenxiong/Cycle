@@ -51,9 +51,18 @@ ASTFB_Cycle_networks <- Cycle_network(ASTFB_ASD_lncRNAs_data[1:100,1:100],ASTFB_
 ## lncRNA regulation of Neumat
 Neumat_Cycle_networks <- Cycle_network(Neumat_ASD_lncRNAs_data[1:100,1:100],Neumat_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
-## Integrating cell type-specific lncRNA-mRNA regulatory network
+# Discovering stable and rewired lncRNA regulation
 celltypes = c('Microglia', 'ASTFB', 'Neumat')
-Cycle_networks = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+Cycle_networks_tmp = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+
+Cycle_networks = list()
+for(i in 1:length(celltypes)){
+  res_list <- Cycle_networks_tmp[[i]]
+  cell_num <- length(res_list)
+  overlap <- Overlap.net(net = res_list, overlap.num = round(cell_num*0.9),type = 'least')
+  colnames(overlap) <- c('lncRNAs','mRNAs')
+  Cycle_networks[[celltypes[i]]] <- overlap
+}
 
 # Identifying cell type-specific hub lncRNAs 
 Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
