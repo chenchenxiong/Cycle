@@ -258,8 +258,8 @@ Cycle_network <-
            cell_id = NULL,
            maxiter = 20) {
 
-    lncR = t(lncR)
-    mR = t(mR)
+    # lncR = t(lncR)
+    # mR = t(mR)
     lncRs_num <- ncol(lncR)
     mRs_num <- ncol(mR)
     cell_num <- nrow(lncR)
