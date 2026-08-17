@@ -52,10 +52,10 @@ ASTFB_Cycle_networks <- Cycle_network(ASTFB_ASD_lncRNAs_data[1:100,1:100],ASTFB_
 Neumat_Cycle_networks <- Cycle_network(Neumat_ASD_lncRNAs_data[1:100,1:100],Neumat_ASD_mRNAs_data[1:100,1:100], boxsize = 0.1, p.value.cutoff = 0.05, num.cores = 2, dev = TRUE, iteration = TRUE, cell_id = NULL, maxiter = 20)
 
 # Discovering stable and rewired lncRNA regulation
-celltypes = c('Microglia', 'ASTFB', 'Neumat')
-Cycle_networks_tmp = list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
+celltypes <- c('Microglia', 'ASTFB', 'Neumat')
+Cycle_networks_tmp <- list(microglia_Cycle_networks, ASTFB_Cycle_networks, Neumat_Cycle_networks)
 
-Cycle_networks = list()
+Cycle_networks <- list()
 for(i in 1:length(celltypes)){
   res_list <- Cycle_networks_tmp[[i]]
   cell_num <- length(res_list)
@@ -66,7 +66,7 @@ for(i in 1:length(celltypes)){
 
 # Identifying cell type-specific hub lncRNAs 
 Cycle_hubs_lncRNAs <- hub_discovery(Cycle_networks)
-names(Cycle_hubs_lncRNAs) = names(Cycle_networks)
+names(Cycle_hubs_lncRNAs) <- names(Cycle_networks)
 
 # Discovering stable and rewired lncRNA regulation
 ## Given cell type-specific lncRNA-mRNA regulatory networks, we could discover stable and rewired lncRNA-mRNA regulatory networks.
